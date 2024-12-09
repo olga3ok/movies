@@ -1,0 +1,30 @@
+body {
+  background-color: black;
+  background-image: url('back.webp');
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+}
+.App {
+  color: #ffffff;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.App-header {
+  margin-bottom: 20px;
+}
+
+.text-light {
+  color: #ffffff !important;
+}
+
+.info-container {
+  background-color: transparent;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+}
+
+.border {
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+}
