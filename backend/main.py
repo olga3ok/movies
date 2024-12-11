@@ -12,20 +12,12 @@ from routers import movies
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",  # Добавьте сюда все источники, с которых будут поступать запросы
-]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Разрешаем запросы с любого домена
-    allow_credentials=True,
-    allow_methods=["*"],  # Разрешаем все HTTP методы
-    allow_headers=["*"],  # Разрешаем все заголовки
-)
 models.Base.metadata.create_all(bind=engine)
 
+
 app.include_router(movies.router)
+
 
 @app.on_event("startup")
 async def startup():
@@ -33,7 +25,8 @@ async def startup():
     with open("data/dates.json", "r", encoding="utf-8") as file:
         phrases = json.load(file)
 
-@app.get("/phrase")
+
+@app.get("/api/phrase")
 def get_phrase(date: str = Query(None), db: Session = Depends(get_db)):
     settings = crud.get_settings(db)
     if not settings:
@@ -55,3 +48,17 @@ def get_phrase(date: str = Query(None), db: Session = Depends(get_db)):
         else:
             return {"date": today, "phrase": ""}
 
+
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)

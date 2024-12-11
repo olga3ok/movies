@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import api from '../api'; // Импортируем api для отправки запросов
+import api from '../api';
 
 const SettingsModal = ({ show, handleClose, handleSave, settings }) => {
     const [listCount, setListCount] = useState(settings.listCount);

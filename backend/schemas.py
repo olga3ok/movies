@@ -2,14 +2,17 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date
 
+
 class MovieBase(BaseModel):
     title: str
-    year: int  # Поле для года выхода
-    genre: str  # Поле для жанра
-    watched: bool = False  # Поле для отметки фильма как просмотренного
+    year: int 
+    genre: str
+    watched: bool = False 
+
 
 class MovieCreate(MovieBase):
     list_id: int
+
 
 class Movie(MovieBase):
     id: int
@@ -18,11 +21,14 @@ class Movie(MovieBase):
     class Config:
         orm_mode = True
 
+
 class MovieListBase(BaseModel):
     name: str
 
+
 class MovieListCreate(MovieListBase):
     pass
+
 
 class MovieList(MovieListBase):
     id: int
@@ -31,12 +37,15 @@ class MovieList(MovieListBase):
     class Config:
         orm_mode = True
 
+
 class MovieOfTheDayBase(BaseModel):
     date: date
     movie_id: int
 
+
 class MovieOfTheDayCreate(MovieOfTheDayBase):
     pass
+
 
 class MovieOfTheDay(MovieOfTheDayBase):
     id: int
@@ -45,16 +54,20 @@ class MovieOfTheDay(MovieOfTheDayBase):
     class Config:
         orm_mode = True
 
+
 class MovieToggleWatched(BaseModel):
     watched: bool
+
 
 class SettingsBase(BaseModel):
     list_count: int
     list1_name: str
     list2_name: str
 
+
 class SettingsCreate(SettingsBase):
     pass
+
 
 class Settings(SettingsBase):
     id: int
@@ -62,11 +75,14 @@ class Settings(SettingsBase):
     class Config:
         orm_mode = True
 
+
 class GenreBase(BaseModel):
     name: str
 
+
 class GenreCreate(GenreBase):
     pass
+
 
 class Genre(GenreBase):
     id: int

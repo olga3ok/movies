@@ -1,5 +1,5 @@
 # Используем официальный образ Node.js в качестве базового
-FROM node:14
+FROM node:22 AS build
 
 # Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
@@ -16,7 +16,7 @@ RUN npm run build
 
 # Используем nginx для обслуживания статических файлов
 FROM nginx:alpine
-COPY --from=0 /app/build /usr/share/nginx/html
+COPY --from=build /app/build /usr/share/nginx/html
 
 # Указываем команду для запуска nginx
 CMD ["nginx", "-g", "daemon off;"]

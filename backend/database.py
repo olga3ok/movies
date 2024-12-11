@@ -18,9 +18,3 @@ def get_db():
         db.close()
 
 
-# mapper_registry = registry()
-# mapper_registry.map_imperatively(MovieList, 'lists')
-# mapper_registry.map_imperatively(Movie, 'movies')
-# mapper_registry.map_imperatively(MovieOfTheDay, 'movie_of_the_day')
-
-# mapper_registry.configure()

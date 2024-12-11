@@ -3,19 +3,23 @@ import api from './api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Header from './components/Header';
-import MovieList from './components/MovieList';
+import MovieList from './components/MovieList/MovieList';
+import { Helmet } from 'react-helmet';
+
 
 function App() {
+    // Хранения настроек
     const [settings, setSettings] = useState({
         listCount: 1,
         listNames: { list1: 'Список 1', list2: 'Список 2' }
     });
 
+    // Загрузка настроек при монтировании компонента
     useEffect(() => {
+        // document.title = 'Movies';
         const fetchSettings = async () => {
             try {
                 const response = await api.get('/settings/');
-                console.log('Fetched settings:', response.data); // Временное логирование
                 const fetchedSettings = {
                     listCount: response.data.list_count,
                     listNames: {

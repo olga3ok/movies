@@ -1,0 +1,23 @@
+.movie-item {
+    height: 50px;
+}
+
+.movie-item td {
+    vertical-align: middle;
+}
+
+.movie-item td.title {
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.movie-table {
+    table-layout: fixed;
+    width: 100%; 
+}
+
+.movie-table th, .movie-table td {
+    word-wrap: break-word;
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../App.css';
 import api from '../api';
-import SettingsModal from './SettingsModal'; // Импортируем модальное окно
+import SettingsModal from './SettingsModal';
 
 const Header = ({ settings, setSettings }) => {
     const [date, setDate] = useState('');
@@ -19,7 +19,6 @@ const Header = ({ settings, setSettings }) => {
         try {
             const url = date ? `/phrase?date=${date}` : '/phrase';
             const response = await api.get(url);
-            console.log('Fetched phrase:', response.data.phrase); // Временное логирование
             setDate(response.data.date);
             setPhrase(response.data.phrase);
         } catch (error) {
@@ -57,9 +56,10 @@ const Header = ({ settings, setSettings }) => {
         setShowModal(false);
     };
 
+    // Сохранение настроек
     const handleSaveSettings = (newSettings) => {
         setSettings(newSettings);
-        fetchPhrase(inputDate); // Вызываем fetchPhrase после сохранения настроек
+        fetchPhrase(inputDate);
         handleCloseModal();
     };
 

@@ -157,3 +157,5 @@ cython_debug/
 *.rdb
 *.identifier.sqlite
 db.sqlite3
+
+node_modules

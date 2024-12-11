@@ -1,14 +1,14 @@
-# crud.py
 from sqlalchemy.orm import Session
 import models
 import schemas
 from datetime import date
+from sqlalchemy.sql import select
 
+
+# Списки фильмов
 def get_movie_list(db: Session, list_id: int):
     return db.query(models.MovieList).filter(models.MovieList.id == list_id).first()
 
-def get_movies(db: Session, list_id: int, skip: int = 0, limit: int = 20):
-    return db.query(models.Movie).filter(models.Movie.list_id == list_id).offset(skip).limit(limit).all()
 
 def create_movie_list(db: Session, movie_list: schemas.MovieListCreate):
     db_movie_list = models.MovieList(name=movie_list.name)
@@ -17,6 +17,12 @@ def create_movie_list(db: Session, movie_list: schemas.MovieListCreate):
     db.refresh(db_movie_list)
     return db_movie_list
 
+
+# Фильмы
+def get_movies(db: Session, list_id: int, skip: int = 0, limit: int = 20):
+    return db.query(models.Movie).filter(models.Movie.list_id == list_id).offset(skip).limit(limit).all()
+
+
 def create_movie(db: Session, movie: schemas.MovieCreate):
     db_movie = models.Movie(**movie.dict())
     db.add(db_movie)
@@ -24,21 +30,23 @@ def create_movie(db: Session, movie: schemas.MovieCreate):
     db.refresh(db_movie)
     return db_movie
 
+
 def delete_movie(db: Session, movie_id: int):
     movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
     db.delete(movie)
     db.commit()
     return movie
 
+
 def update_movie(db: Session, movie_id: int, movie: schemas.MovieCreate):
     db_movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
     db_movie.title = movie.title
-    db_movie.year = movie.year  # Обновление поля года выхода
-    db_movie.genre = movie.genre  # Обновление поля жанра
-    db_movie.watched = movie.watched  # Обновление поля просмотренного
-    db.commit()
+    db_movie.year = movie.year  
+    db_movie.genre = movie.genre 
+    db_movie.watched = movie.watched 
     db.refresh(db_movie)
     return db_movie
+
 
 def toggle_watched(db: Session, movie_id: int, toggle_data: schemas.MovieToggleWatched):
     db_movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
@@ -47,8 +55,11 @@ def toggle_watched(db: Session, movie_id: int, toggle_data: schemas.MovieToggleW
     db.refresh(db_movie)
     return db_movie
 
+
+# Фильм дня
 def get_movie_of_the_day(db: Session, current_date: date):
     return db.query(models.MovieOfTheDay).filter(models.MovieOfTheDay.date == current_date).first()
+
 
 def create_movie_of_the_day(db: Session, movie_of_the_day: schemas.MovieOfTheDayCreate):
     db_movie_of_the_day = models.MovieOfTheDay(**movie_of_the_day.dict())
@@ -56,6 +67,7 @@ def create_movie_of_the_day(db: Session, movie_of_the_day: schemas.MovieOfTheDay
     db.commit()
     db.refresh(db_movie_of_the_day)
     return db_movie_of_the_day
+
 
 def update_movie_of_the_day(db: Session, movie_of_the_day: schemas.MovieOfTheDayCreate):
     db_movie_of_the_day = db.query(models.MovieOfTheDay).filter(models.MovieOfTheDay.date == movie_of_the_day.date).first()
@@ -66,6 +78,8 @@ def update_movie_of_the_day(db: Session, movie_of_the_day: schemas.MovieOfTheDay
     db.refresh(db_movie_of_the_day)
     return db_movie_of_the_day
 
+
+# Настройки
 def get_settings(db: Session):
     settings = db.query(models.Settings).first()
     if settings is None:
@@ -74,6 +88,7 @@ def get_settings(db: Session):
         db.commit()
         db.refresh(settings)
     return settings
+
 
 def create_or_update_settings(db: Session, settings: schemas.SettingsCreate):
     db_settings = db.query(models.Settings).first()
@@ -88,8 +103,11 @@ def create_or_update_settings(db: Session, settings: schemas.SettingsCreate):
     db.refresh(db_settings)
     return db_settings
 
+
+# Жанры
 def get_genres(db: Session, skip: int = 0, limit: int = 30):
     return db.query(models.Genre).offset(skip).limit(limit).all()
+
 
 def create_genre(db: Session, genre: schemas.GenreCreate):
     db_genre = models.Genre(name=genre.name)
@@ -98,5 +116,16 @@ def create_genre(db: Session, genre: schemas.GenreCreate):
     db.refresh(db_genre)
     return db_genre
 
+
 def get_genre_by_name(db: Session, name: str):
     return db.query(models.Genre).filter(models.Genre.name == name).first()
+
+
+def delete_genre(db: Session, genre_id: int):
+    result = db.execute(select(models.Genre).filter(models.Genre.id == genre_id))
+    db_genre = result.scalar_one_or_none()
+    if db_genre:
+        db.delete(db_genre)
+        db.commit()
+        return db_genre
+    return None
