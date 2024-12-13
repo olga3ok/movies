@@ -13,6 +13,7 @@ class Movie(Base):
     genre = Column(String, index=True) 
     watched = Column(Boolean, default=False)
     list_id = Column(Integer, ForeignKey('lists.id'))
+    order = Column(Integer, index=True)
     list = relationship('MovieList', back_populates='movies')
 
 

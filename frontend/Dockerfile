@@ -18,5 +18,5 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Указываем команду для запуска nginx
+# Запуск nginx
 CMD ["nginx", "-g", "daemon off;"]

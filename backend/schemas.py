@@ -8,10 +8,7 @@ class MovieBase(BaseModel):
     year: int 
     genre: str
     watched: bool = False 
-
-
-class MovieCreate(MovieBase):
-    list_id: int
+    order: int
 
 
 class Movie(MovieBase):
@@ -19,7 +16,11 @@ class Movie(MovieBase):
     list_id: int
 
     class Config:
-        orm_mode = True
+        ofrom_attributes = True
+
+
+class MovieCreate(MovieBase):
+    list_id: int
 
 
 class MovieListBase(BaseModel):
@@ -27,7 +28,7 @@ class MovieListBase(BaseModel):
 
 
 class MovieListCreate(MovieListBase):
-    pass
+    movies: List[MovieCreate]
 
 
 class MovieList(MovieListBase):
@@ -35,7 +36,7 @@ class MovieList(MovieListBase):
     movies: List[Movie] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class MovieOfTheDayBase(BaseModel):
@@ -52,7 +53,7 @@ class MovieOfTheDay(MovieOfTheDayBase):
     movie: Movie
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class MovieToggleWatched(BaseModel):
@@ -73,7 +74,7 @@ class Settings(SettingsBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class GenreBase(BaseModel):
@@ -88,4 +89,8 @@ class Genre(GenreBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class MovieReorder(BaseModel):
+    order: int

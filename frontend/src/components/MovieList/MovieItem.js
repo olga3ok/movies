@@ -1,20 +1,18 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
-import './MovieList.css'; // Импортируем CSS-файл
+import './MovieList.css';
 
 const MovieItem = ({ movie, toggleWatched, onEdit, onDelete }) => {
     if (!movie) {
         return (
-            <tr className="movie-item">
-                <td colSpan="4">Пусто</td>
-            </tr>
+            <td colSpan="4">Пусто</td>
         );
     }
 
     return (
-        <tr className="movie-item" style={{ textDecoration: movie.watched ? 'line-through' : 'none', color: movie.watched ? 'black' : 'inherit' }}>
-            <td className="title">{movie.title}</td>
+        <>
+            <td className={`title ${movie.watched ? 'watched' : ''}`}>{movie.title}</td>
             <td>{movie.year}</td>
             <td>{movie.genre}</td>
             <td style={{ textAlign: 'right' }}>
@@ -28,9 +26,12 @@ const MovieItem = ({ movie, toggleWatched, onEdit, onDelete }) => {
                     <FontAwesomeIcon icon={faTimes} />
                 </button>
             </td>
-        </tr>
+        </>
     );
 };
 
 export default MovieItem;
+
+
+
 

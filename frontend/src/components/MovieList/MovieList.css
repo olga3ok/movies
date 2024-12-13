@@ -21,3 +21,8 @@
 .movie-table th, .movie-table td {
     word-wrap: break-word;
 }
+
+.watched {
+    text-decoration: line-through;
+    color: black;
+}

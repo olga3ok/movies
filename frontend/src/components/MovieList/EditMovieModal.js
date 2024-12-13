@@ -1,8 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import api from '../../api';
 
 const EditMovieModal = ({ show, handleClose, movie, updateMovie }) => {
-    const [editingMovie, setEditingMovie] = useState({ title: '', year: '', genre: '', watched: false });
+    const [editingMovie, setEditingMovie] = useState({ title: '', year: '', genre: '', watched: false, order: ''});
+    const [genres, setGenres] = useState([]);
+
+    useEffect(() => {
+        const fetchGenres = async () => {
+            try {
+                const response = await api.get('/genres');
+                setGenres(response.data);
+            } catch (error) {
+                console.error('There was an error fetching the genres!', error);
+            }
+        };
+
+        fetchGenres();
+    }, []);
 
     useEffect(() => {
         if (movie) {
@@ -10,7 +25,8 @@ const EditMovieModal = ({ show, handleClose, movie, updateMovie }) => {
                 title: movie.title,
                 year: movie.year,
                 genre: movie.genre,
-                watched: movie.watched
+                watched: movie.watched,
+                order: movie.order
             });
         }
     }, [movie]);
@@ -19,6 +35,11 @@ const EditMovieModal = ({ show, handleClose, movie, updateMovie }) => {
         e.preventDefault();
         updateMovie(editingMovie);
         handleClose();
+    };
+
+    const handleGenreChange = (e) => {
+        const genre = e.target.value;
+        setEditingMovie({ ...editingMovie, genre });
     };
 
     return (
@@ -51,12 +72,18 @@ const EditMovieModal = ({ show, handleClose, movie, updateMovie }) => {
                     <Form.Group controlId="formGenre">
                         <Form.Label>Жанр</Form.Label>
                         <Form.Control
-                            type="text"
-                            placeholder="Жанр"
+                            as="select"
                             value={editingMovie.genre}
-                            onChange={(e) => setEditingMovie({ ...editingMovie, genre: e.target.value })}
+                            onChange={handleGenreChange}
                             required
-                        />
+                        >
+                            <option value="">Выберите жанр</option>
+                            {genres.map((genre, index) => (
+                                <option key={index} value={genre.name}>
+                                    {genre.name}
+                                </option>
+                            ))}
+                        </Form.Control>
                     </Form.Group>
                     <br></br>
                     <Button variant="secondary" type="submit">
@@ -74,3 +101,6 @@ const EditMovieModal = ({ show, handleClose, movie, updateMovie }) => {
 };
 
 export default EditMovieModal;
+
+
+

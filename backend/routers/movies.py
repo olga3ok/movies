@@ -6,6 +6,10 @@ import schemas
 from database import get_db
 import random
 from datetime import date
+import logging
+from typing import List
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter()
@@ -29,7 +33,12 @@ def read_movie_list(list_id: int, db: Session = Depends(get_db)):
 # Создание фильма
 @router.post("/api/movies/", response_model=schemas.Movie)
 def create_movie(movie: schemas.MovieCreate, db: Session = Depends(get_db)):
-    return crud.create_movie(db=db, movie=movie)
+    try:
+        logger.info(f"Received movie data: {movie}")
+        return crud.create_movie(db=db, movie=movie)
+    except Exception as e:
+        logger.error(f"Error creating movie: {e}")
+        raise HTTPException(status_code=422, detail="Unprocessable Entity")
 
 
 # Удаление фильма по ID
@@ -41,8 +50,24 @@ def delete_movie(movie_id: int, db: Session = Depends(get_db)):
 # Обновление фильма по ID
 @router.put("/api/movies/{movie_id}", response_model=schemas.Movie)
 def update_movie(movie_id: int, movie: schemas.MovieCreate, db: Session = Depends(get_db)):
-    return crud.update_movie(db=db, movie_id=movie_id, movie=movie)
+    try:
+        updated_movie = crud.update_movie(db=db, movie_id=movie_id, movie=movie)
+        if updated_movie:
+            return updated_movie
+        else:
+            raise HTTPException(status_code=404, detail="Movie not found")
+    except Exception as e:
+        raise HTTPException(status_code=422, detail="Unprocessable Entity")
 
+
+# Измнение порядка фильма
+@router.patch("/api/movies/reorder/{movie_id}", response_model=schemas.Movie)
+def update_movie_order(movie_id: int, order_data: schemas.MovieReorder, db: Session = Depends(get_db)):
+    try:
+        return crud.update_movie_order(db=db, movie_id=movie_id, order_data=order_data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 # Переключение статуса промотрено/не просмотрено для фильма по ID
 @router.patch("/api/movies/{movie_id}", response_model=schemas.Movie)
@@ -106,8 +131,7 @@ def get_settings(db: Session = Depends(get_db)):
     settings = crud.get_settings(db)
     if settings is None:
         raise HTTPException(status_code=404, detail="Settings not found")
-    return se
-    ttings
+    return settings
 
 # Создание или обновление настроек
 @router.post("/api/settings/", response_model=schemas.Settings)
@@ -135,7 +159,4 @@ def create_genre(genre: schemas.GenreCreate, db: Session = Depends(get_db)):
 @router.delete("/api/genres/{genre_id}", response_model=schemas.Genre)
 def delete_genre(genre_id: int, db: Session = Depends(get_db)):
     return crud.delete_genre(db=db, genre_id=genre_id)
-
-
-
 

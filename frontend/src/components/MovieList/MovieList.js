@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import api from '../../api';
 import AddMovieModal from './AddMovieModal';
 import EditMovieModal from './EditMovieModal';
@@ -10,7 +11,7 @@ import MovieActions from './MovieActions';
 const MovieList = ({ listId, listName, className }) => {
     const [moviesList, setMoviesList] = useState([]);
     const [editMovie, setEditMovie] = useState(null);
-    const [editingMovie, setEditingMovie] = useState({ title: '', year: '', genre: '', watched: false });
+    const [editingMovie, setEditingMovie] = useState({ title: '', year: '', genre: '', watched: false, order: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [filter, setFilter] = useState('all'); // 'all', 'watched', 'not_watched'
@@ -28,7 +29,8 @@ const MovieList = ({ listId, listName, className }) => {
     const fetchMovies = useCallback(async (listId) => {
         try {
             const response = await api.get(`/movies/list/${listId}`);
-            setMoviesList(response.data);
+            const sortedMovies = response.data.sort((a, b) => a.order - b.order);
+            setMoviesList(sortedMovies);
         } catch (error) {
             console.error('There was an error fetching the movies!', error);
             setError(error);
@@ -50,7 +52,7 @@ const MovieList = ({ listId, listName, className }) => {
     const deleteMovie = async (movieId) => {
         try {
             await api.delete(`/movies/${movieId}`);
-            setMoviesList(moviesList.filter(movie => movie.id !== movieId));
+            setMoviesList(moviesList.filter(movie => movie && movie.id !== movieId));
         } catch (error) {
             console.error('There was an error deleting the movie!', error);
         }
@@ -60,7 +62,7 @@ const MovieList = ({ listId, listName, className }) => {
         const movieData = { ...updatedMovie, list_id: listId };
         try {
             const response = await api.put(`/movies/${editMovie}`, movieData);
-            setMoviesList(moviesList.map(movie => movie.id === editMovie ? response.data : movie));
+            setMoviesList(moviesList.map(movie => movie && movie.id === editMovie ? response.data : movie));
             setEditMovie(null);
         } catch (error) {
             console.error('There was an error updating the movie!', error);
@@ -69,11 +71,15 @@ const MovieList = ({ listId, listName, className }) => {
 
     const toggleWatched = async (movieId) => {
         try {
-            const movie = moviesList.find(movie => movie.id === movieId);
+            const movie = moviesList.find(movie => movie && movie.id === movieId);
+            if (!movie) {
+                console.error('Movie not found!', movieId);
+                return;
+            }
             const response = await api.patch(`/movies/${movieId}`, {
                 watched: !movie.watched
             });
-            setMoviesList(moviesList.map(movie => movie.id === movieId ? response.data : movie));
+            setMoviesList(moviesList.map(movie => movie && movie.id === movieId ? response.data : movie));
         } catch (error) {
             console.error('There was an error updating the movie!', error);
         }
@@ -85,7 +91,7 @@ const MovieList = ({ listId, listName, className }) => {
         setSortDirection(isAsc ? 'desc' : 'asc');
     };
 
-    const sortedMovies = [...moviesList].sort((a, b) => {
+    const sortedMovies = [...moviesList].filter(movie => movie !== null).sort((a, b) => {
         if (a.watched !== b.watched) {
             return a.watched ? 1 : -1;
         }
@@ -114,6 +120,40 @@ const MovieList = ({ listId, listName, className }) => {
         setCurrentPage(newPage);
     };
 
+    const onDragEnd = async (result) => {
+        const { destination, source } = result;
+
+        if (!destination) {
+            return;
+        }
+        if (
+            destination.droppableId === source.droppableId &&
+            destination.index === source.index
+        ) {
+            return;
+        }
+
+        const movie1 = moviesList[destination.index];
+        const movie2 = moviesList[source.index];
+
+        const tmp = movie1.order;
+        movie1.order = movie2.order;
+        movie2.order = tmp;
+
+        const newMoviesList = Array.from(moviesList);
+        const [reorderedMovie] = newMoviesList.splice(source.index, 1);
+        newMoviesList.splice(destination.index, 0, reorderedMovie);
+
+        setMoviesList(newMoviesList);
+
+        try {
+            await api.patch(`/movies/reorder/${movie1.id}`, { order: movie1.order });
+            await api.patch(`/movies/reorder/${movie2.id}`, { order: movie2.order });
+        } catch (error) {
+            console.error('There was an error updating the movies order!', error);
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -127,19 +167,28 @@ const MovieList = ({ listId, listName, className }) => {
             <MovieActions listName={listName} setShowAddModal={setShowAddModal} />
             <MovieFilters filter={filter} setFilter={setFilter} />
             {paddedMovies.length > 0 ? (
-                <MovieTable
-                    movies={paddedMovies}
-                    toggleWatched={toggleWatched}
-                    onEdit={(movie) => {
-                        setEditMovie(movie.id);
-                        setEditingMovie(movie);
-                        setShowEditModal(true);
-                    }}
-                    onDelete={deleteMovie}
-                    handleSort={handleSort}
-                    sortField={sortField}
-                    sortDirection={sortDirection}
-                />
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId="movies">
+                        {(provided) => (
+                            <MovieTable
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                                movies={paddedMovies}
+                                toggleWatched={toggleWatched}
+                                onEdit={(movie) => {
+                                    setEditMovie(movie.id);
+                                    setEditingMovie(movie);
+                                    setShowEditModal(true);
+                                }}
+                                onDelete={deleteMovie}
+                                handleSort={handleSort}
+                                sortField={sortField}
+                                sortDirection={sortDirection}
+                                placeholder={provided.placeholder}
+                            />
+                        )}
+                    </Droppable>
+                </DragDropContext>
             ) : (
                 <div>Список фильмов пуст.</div>
             )}

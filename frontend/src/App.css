@@ -28,3 +28,15 @@ body {
   border: 1px solid #ffffff;
   border-radius: 8px;
 }
+
+.btn-border {
+  border-radius: 10px;
+  border-color: white;
+  border-width: 1px;
+}
+
+.btn-border:hover {
+  border-radius: 10px;
+  border-color: black;
+  border-width: 1px;
+}

@@ -1,9 +1,13 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 import models
 import schemas
 from datetime import date
 from sqlalchemy.sql import select
+import logging
+from typing import List
 
+logger = logging.getLogger(__name__)
 
 # Списки фильмов
 def get_movie_list(db: Session, list_id: int):
@@ -24,7 +28,14 @@ def get_movies(db: Session, list_id: int, skip: int = 0, limit: int = 20):
 
 
 def create_movie(db: Session, movie: schemas.MovieCreate):
-    db_movie = models.Movie(**movie.dict())
+    max_order = db.query(func.max(models.Movie.order)).scalar() or 0
+    db_movie = models.Movie(
+        title=movie.title,
+        year=movie.year,
+        genre=movie.genre,
+        order=max_order + 1,
+        list_id = movie.list_id
+    )
     db.add(db_movie)
     db.commit()
     db.refresh(db_movie)
@@ -40,11 +51,25 @@ def delete_movie(db: Session, movie_id: int):
 
 def update_movie(db: Session, movie_id: int, movie: schemas.MovieCreate):
     db_movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
-    db_movie.title = movie.title
-    db_movie.year = movie.year  
-    db_movie.genre = movie.genre 
-    db_movie.watched = movie.watched 
-    db.refresh(db_movie)
+    if db_movie:
+        db_movie.title = movie.title
+        db_movie.year = movie.year  
+        db_movie.genre = movie.genre 
+        db_movie.watched = movie.watched 
+        db_movie.order = movie.order
+        db.commit()
+        db.refresh(db_movie)
+        return db_movie
+    else:
+        return None
+    
+
+def update_movie_order(db: Session, movie_id: int, order_data: schemas.MovieReorder):
+    db_movie = db.query(models.Movie).filter(models.Movie.id == movie_id).first()
+    if db_movie:
+        db_movie.order = order_data.order
+        db.commit()
+        db.refresh(db_movie)
     return db_movie
 
 
@@ -129,3 +154,4 @@ def delete_genre(db: Session, genre_id: int):
         db.commit()
         return db_genre
     return None
+

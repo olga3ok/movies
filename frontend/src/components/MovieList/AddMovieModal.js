@@ -4,7 +4,7 @@ import api from '../../api';
 import AddGenreModal from './AddGenreModal';
 
 const AddMovieModal = ({ show, handleClose, addMovie }) => {
-    const [newseason, setNewMovie] = useState({ title: '', year: '', genre: '', watched: false });
+    const [newMovie, setNewMovie] = useState({ title: '', year: '', genre: '', watched: false, order: 1 });
     const [genres, setGenres] = useState([]);
     const [showAddGenreModal, setShowAddGenreModal] = useState(false);
 
@@ -23,19 +23,19 @@ const AddMovieModal = ({ show, handleClose, addMovie }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        addMovie(newseason);
-        setNewMovie({ title: '', year: '', genre: '', watched: false });
+        addMovie(newMovie);
+        setNewMovie({ title: '', year: '', genre: '', watched: false, order: 1 });
         handleClose();
     };
 
     const handleGenreChange = (e) => {
         const genre = e.target.value;
-        setNewMovie({ ...newseason, genre });
+        setNewMovie({ ...newMovie, genre });
     };
 
     const handleAddGenre = (newGenre) => {
         setGenres([...genres, newGenre]);
-        setNewMovie({ ...newseason, genre: newGenre });
+        setNewMovie({ ...newMovie, genre: newGenre });
     };
 
     const addGenre = (newGenre) => {
@@ -59,8 +59,8 @@ const AddMovieModal = ({ show, handleClose, addMovie }) => {
                             <Form.Control
                                 type="text"
                                 placeholder="Название фильма"
-                                value={newseason.title}
-                                onChange={(e) => setNewMovie({ ...newseason, title: e.target.value })}
+                                value={newMovie.title}
+                                onChange={(e) => setNewMovie({ ...newMovie, title: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -69,8 +69,8 @@ const AddMovieModal = ({ show, handleClose, addMovie }) => {
                             <Form.Control
                                 type="number"
                                 placeholder="Год выхода"
-                                value={newseason.year}
-                                onChange={(e) => setNewMovie({ ...newseason, year: e.target.value })}
+                                value={newMovie.year}
+                                onChange={(e) => setNewMovie({ ...newMovie, year: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -78,7 +78,7 @@ const AddMovieModal = ({ show, handleClose, addMovie }) => {
                             <Form.Label>Жанр</Form.Label>
                             <Form.Control
                                 as="select"
-                                value={newseason.genre}
+                                value={newMovie.genre}
                                 onChange={handleGenreChange}
                                 required
                             >
@@ -90,6 +90,16 @@ const AddMovieModal = ({ show, handleClose, addMovie }) => {
                                 ))}
                             </Form.Control>
                         </Form.Group>
+                        {/* <Form.Group controlId="formOrder">
+                            <Form.Label>Порядок</Form.Label>
+                            <Form.Control
+                                type="number"
+                                placeholder="Порядок"
+                                value={newMovie.order}
+                                onChange={(e) => setNewMovie({ ...newMovie, order: e.target.value })}
+                                required
+                            />
+                        </Form.Group> */}
                         <br></br>
                         <Button variant="secondary" type="submit">
                             Добавить
@@ -117,5 +127,6 @@ const AddMovieModal = ({ show, handleClose, addMovie }) => {
 };
 
 export default AddMovieModal;
+
 
 

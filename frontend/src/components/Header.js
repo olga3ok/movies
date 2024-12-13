@@ -68,14 +68,14 @@ const Header = ({ settings, setSettings }) => {
             <div className="info-container p-3">
                 <div className="d-flex align-items-center justify-content-center position-relative">
                     <h1 className="text-light mb-0">{date}</h1>
-                    <button className="btn btn-dark ml-auto position-absolute end-0" onClick={handleOpenModal}>
+                    <button className="btn btn-dark ml-auto position-absolute end-0 btn-border" onClick={handleOpenModal}>
                         Настройки
                     </button>
                 </div>
                 <h2 className="text-light">{phrase}</h2>
                 <div className="d-flex align-items-center">
                     <h3 className="text-light mb-0 flex-grow-1">Фильм на сегодня: {randomMovie}</h3>
-                    <button className="btn btn-dark ml-2" onClick={generateMovieOfTheDay}>
+                    <button className="btn btn-dark ml-2 btn-border" onClick={generateMovieOfTheDay}>
                         Сгенерировать фильм
                     </button>
                 </div>
